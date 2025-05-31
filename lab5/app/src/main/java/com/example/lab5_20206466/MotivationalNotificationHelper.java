@@ -1,4 +1,5 @@
 package com.example.lab5_20206466;
+
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -18,6 +19,9 @@ public class MotivationalNotificationHelper {
         intent.putExtra("canalId", canalId);
         intent.putExtra("icono", R.drawable.ic_mensaje);
         intent.putExtra("id", idNotificacion);
+        intent.putExtra("esMotivacional", true); // <- Marca que es motivacional
+        intent.putExtra("frecuenciaHoras", frecuenciaHoras);
+        intent.putExtra("mensajeMotivacional", mensaje);
 
         PendingIntent pendingIntent = PendingIntent.getBroadcast(
                 context,
@@ -27,13 +31,12 @@ public class MotivationalNotificationHelper {
         );
 
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        long intervalo = frecuenciaHoras * 60L * 60L * 1000L;
 
-        Calendar calendar = Calendar.getInstance();
-        alarmManager.setRepeating(
+        Calendar calendar = Calendar.getInstance(); // ahora mismo
+
+        alarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP,
                 calendar.getTimeInMillis(),
-                intervalo,
                 pendingIntent
         );
     }

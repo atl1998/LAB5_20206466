@@ -10,17 +10,21 @@ import java.util.Random;
 public class HabitoNotificationHelper {
 
     public static void programarNotificacion(Context context, Habito habito) {
-        String canalId = habito.getCategoria(); // canal basado en la categoría
+        String canalId = habito.getCategoria().toLowerCase(); // canal basado en categoría
         int frecuenciaHoras = habito.getFrecuenciaHoras();
 
-        // Crear intent
+        // Intent para AlarmReceiver
         Intent intent = new Intent(context, AlarmReceiver.class);
         intent.putExtra("titulo", habito.getNombre());
         intent.putExtra("mensaje", "¡Hora de " + habito.getNombre() + "!");
         intent.putExtra("canalId", canalId);
         intent.putExtra("icono", obtenerIcono(habito.getCategoria()));
+        intent.putExtra("frecuenciaHoras", frecuenciaHoras);
+        intent.putExtra("esHabito", true);
+        intent.putExtra("nombreHabito", habito.getNombre());
+        intent.putExtra("categoria", habito.getCategoria());
 
-        int idNotificacion = new Random().nextInt(100000); // ID único
+        int idNotificacion = habito.getNombre().hashCode(); // ID único basado en nombre
         intent.putExtra("id", idNotificacion);
 
         PendingIntent pendingIntent = PendingIntent.getBroadcast(
@@ -30,25 +34,28 @@ public class HabitoNotificationHelper {
                 PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT
         );
 
-        // Calcular hora de inicio
+        // Convertir fecha y hora de inicio
         Calendar calendar = Calendar.getInstance();
         String[] fecha = habito.getFechaInicio().split("/");
         String[] hora = habito.getHoraInicio().split(":");
 
         calendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(fecha[0]));
-        calendar.set(Calendar.MONTH, Integer.parseInt(fecha[1]) - 1); // mes comienza en 0
+        calendar.set(Calendar.MONTH, Integer.parseInt(fecha[1]) - 1);
         calendar.set(Calendar.YEAR, Integer.parseInt(fecha[2]));
         calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(hora[0]));
         calendar.set(Calendar.MINUTE, Integer.parseInt(hora[1]));
         calendar.set(Calendar.SECOND, 0);
 
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        long intervalo = frecuenciaHoras * 60L * 60L * 1000L; // ms
+        long startTime = calendar.getTimeInMillis();
+        long now = System.currentTimeMillis();
+        if (startTime < now) {
+            startTime = now + 5000; // para pruebas rápidas
+        }
 
-        alarmManager.setRepeating(
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        alarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP,
-                calendar.getTimeInMillis(),
-                intervalo,
+                startTime,
                 pendingIntent
         );
     }
@@ -68,4 +75,3 @@ public class HabitoNotificationHelper {
         }
     }
 }
-
