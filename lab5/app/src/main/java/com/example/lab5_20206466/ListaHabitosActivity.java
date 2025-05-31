@@ -35,8 +35,11 @@ public class ListaHabitosActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lista_habitos);
 
+        /*
         prefs = getSharedPreferences("MisPreferencias", MODE_PRIVATE);
-        listaHabitos = cargarHabitos();
+        listaHabitos = cargarHabitos();*/
+        listaHabitos = StorageUtil.cargarHabitos(this);
+
 
         RecyclerView recyclerView = findViewById(R.id.recyclerHabitos);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -48,14 +51,22 @@ public class ListaHabitosActivity extends AppCompatActivity {
             startActivity(new Intent(this, RegistroHabitoActivity.class));
         });
     }
-
+    /*
     @Override
     protected void onResume() {
         super.onResume();
         listaHabitos.clear();
         listaHabitos.addAll(cargarHabitos());
         adapter.notifyDataSetChanged();
+    }*/
+    @Override
+    protected void onResume() {
+        super.onResume();
+        listaHabitos.clear();
+        listaHabitos.addAll(StorageUtil.cargarHabitos(this));
+        adapter.notifyDataSetChanged();
     }
+
 
     private ArrayList<Habito> cargarHabitos() {
         String json = prefs.getString(KEY_HABITOS, "");

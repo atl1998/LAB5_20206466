@@ -94,6 +94,7 @@ public class RegistroHabitoActivity extends AppCompatActivity {
         Habito nuevoHabito = new Habito(nombre, categoria, frecuenciaHoras, fecha, hora);
 
         // Guardar en SharedPreferences
+        /*
         Gson gson = new Gson();
         String jsonActual = prefs.getString(KEY_HABITOS, "");
         ArrayList<Habito> listaHabitos;
@@ -107,6 +108,14 @@ public class RegistroHabitoActivity extends AppCompatActivity {
 
         listaHabitos.add(nuevoHabito);
         prefs.edit().putString(KEY_HABITOS, gson.toJson(listaHabitos)).apply();
+         */
+        ArrayList<Habito> listaHabitos = StorageUtil.cargarHabitos(this);
+        listaHabitos.add(nuevoHabito);
+        StorageUtil.guardarHabitos(this, listaHabitos);
+
+
+
+
 
         HabitoNotificationHelper.programarNotificacion(this, nuevoHabito);
         Toast.makeText(this, "Hábito guardado y notificación programada", Toast.LENGTH_SHORT).show();
